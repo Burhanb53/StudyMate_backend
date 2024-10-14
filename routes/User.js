@@ -3,7 +3,7 @@ const multer = require("multer");
 const path = require("path");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const cookieParser = require("cookie-parser");
 const Book = require("../model/bookModel");
 const Note = require("../model/noteModel");
@@ -43,8 +43,7 @@ router.post("/login", async (req, res) => {
       const existingUsernames = await User.find().distinct("username");
 
       // Create a new account
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
+      const hashedPassword = await bcrypt.hash(password, 10); // Directly pass salt rounds
       const newUser = new User({ phone, password: hashedPassword });
       await newUser.save();
 
@@ -218,7 +217,6 @@ router.get("/bookmarks/:userId", async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    
     // Return all bookmark details
     res.json({ bookmarks: user.bookmarks });
   } catch (error) {
